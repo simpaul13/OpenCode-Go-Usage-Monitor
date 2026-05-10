@@ -1,6 +1,6 @@
 # OpenCode Go Usage Monitor
 
-A browser extension that adds a **burn-rate aware usage dashboard** to [OpenCode.ai](https://opencode.ai) workspace pages. It scrapes your existing usage limits (monthly, weekly, rolling/hourly) and overlays daily pacing, projections, and status badges so you never run out before reset.
+A browser extension that adds a **burn-rate aware usage dashboard** to [OpenCode.ai](https://opencode.ai) workspace pages. It scrapes your existing usage limits (hourly/rolling, weekly, monthly) and overlays daily pacing, projections, status badges, and a summary card so you never run out before reset.
 
 ![Version](https://img.shields.io/badge/version-3.9-brightgreen)
 
@@ -9,32 +9,43 @@ A browser extension that adds a **burn-rate aware usage dashboard** to [OpenCode
 ## Features
 
 - **Daily Pace** — shows your current daily burn rate, safe max, and headroom
-- **Monthly forecast** — projects end-of-cycle usage and warns if you'll run out early
-- **Status badges** — color-coded Good / Slow down / Stop now on every limit
-- **Summary card** — a compact card with all four limits at a glance
-- **Auto-refresh** — watches for DOM changes so the UI stays in sync
-- **Reorder** — sorts limits into a consistent order (Hourly → Daily → Weekly → Monthly)
+- **Monthly forecast** — projects end-of-cycle usage with a visual progress bar and warns if you'll run out early
+- **Status badges** — color-coded Good / Slow down / Stop now on every limit, with **detailed tooltips** on hover
+- **Summary card** — a compact card with all four limits (Daily, Monthly, Weekly, Hourly) at a glance, plus an overall verdict
+- **Auto-refresh** — watches for DOM changes via `MutationObserver` so the UI stays in sync without reloading
+- **Reorder** — sorts limits into a consistent order: Hourly → Daily → Weekly → Monthly
+- **Hourly rename** — automatically relabels "Rolling Usage" as "Hourly Usage" for clarity
+- **Overall status** — a top-level Good / Use carefully / Action needed badge computed from the worst limit status
 
 ---
 
 ## How it works
 
-The extension injects four content scripts into `https://opencode.ai/workspace/*`:
+The extension injects four content scripts into `https://opencode.ai/workspace/*` (loaded in this exact order):
 
 ```
 content_scripts/
+├── calculation.js    # Burn-rate math, projections, status logic (loaded first)
 ├── analyzer.js       # Scrapes usage % and reset days from the page
-├── calculation.js    # Burn-rate math, projections, status logic
 ├── ui.js             # DOM manipulation, tooltips, badges, summary card
 └── main.js           # Orchestrator — runs everything on page load
 ```
 
 ### Data flow
 
-1. **analyzer.js** — reads the page DOM to get current usage percentages and reset counts
-2. **calculation.js** — computes burn rate, safe budgets, days until empty, and status colors
-3. **ui.js** — injects the Daily Pace row, status badges, and the summary card into the page
-4. **main.js** — calls everything in order and sets up a `MutationObserver` for live updates
+1. **calculation.js** — defines all burn-rate math (`analyzeBurnRate`, `analyzeDailyPacing`, `analyzeWeeklyLimit`, `analyzeRollingLimit`) and status helpers (`getMonthlyStatus`, `getDailyStatus`, `getWeeklyStatus`, `getRollingStatus`, `getOverallStatus`)
+2. **analyzer.js** — reads the page DOM to extract current usage percentages (`parseAllPercents`) and reset-day counts (`getMonthlyResetDays`, `getWeeklyResetDays`)
+3. **ui.js** — injects the Daily Usage row, renames "Rolling" to "Hourly", reorders limit items, attaches status badges with hover tooltips (`buildTooltip`), and builds the summary card (`addSummaryCard`)
+4. **main.js** — calls `computeAll()` (which invokes everything above) on page load and sets up a `MutationObserver` to re-run on DOM changes
+
+### Summary card
+
+The injected summary card appears below the native usage section and includes:
+
+- **Verdict banner** — "Will run out Xd before reset" (red) or "Safe until reset" (green)
+- **Monthly forecast panel** — current usage, remaining %, projected end-of-cycle %, daily burn/safe/headroom pills, and a dual-bar visual (current + projected marker)
+- **Four-column metric grid** — Daily (burn vs safe max), Monthly (used vs left), Weekly (left vs max/day), Hourly/5h (left vs max/hr), each with color-coded status
+- **Action footer** — overall status label with guidance for safe pacing limits
 
 ---
 
@@ -58,16 +69,17 @@ Manifest V3 is not supported in Firefox yet — you would need to convert to Man
 
 ```
 OpenCode Go Usage Monitor/
-├── manifest.json                # Extension config (Manifest V3)
-├── README.md                    # This file
+├── LICENSE                       # MIT license
+├── manifest.json                 # Extension config (Manifest V3, version 3.9)
+├── README.md                     # This file
 ├── icons/
 │   ├── icon-48.png
 │   └── icon-128.png
 └── content_scripts/
-    ├── analyzer.js              # DOM scraper → usage % + reset days
-    ├── calculation.js           # Burn rate math & status helpers
-    ├── ui.js                    # Injects UI elements into the page
-    └── main.js                  # Orchestrator entry point
+    ├── calculation.js            # Burn-rate math, projections, status logic
+    ├── analyzer.js               # DOM scraper → usage % + reset days
+    ├── ui.js                     # Injects UI elements (badges, tooltips, summary card)
+    └── main.js                   # Orchestrator entry point + MutationObserver
 ```
 
 ---
@@ -80,7 +92,7 @@ To modify or extend the extension:
 2. Go to `bra://extensions/` and click the **↻ Refresh** icon on the extension card
 3. Reload your OpenCode workspace page
 
-The scripts are loaded in this order: `calculation.js` → `analyzer.js` → `ui.js` → `main.js`. Keep that dependency chain in mind when adding new functions.
+The scripts are loaded in this order: `calculation.js` → `analyzer.js` → `ui.js` → `main.js`. Keep that dependency chain in mind when adding new functions — `calculation.js` must be first since the other scripts depend on its math helpers.
 
 ---
 
