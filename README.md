@@ -113,11 +113,29 @@ Output: `releases/opencode-go-usage-monitor-v{version}.zip`
 
 ### 3. The RELEASES branch
 
-There's a dedicated [`RELEASES`](https://github.com/simpaul13/OpenCode-Go-Usage-Monitor/tree/RELEASES) branch that contains **only** the files users need — no scripts, no CI configs, no git history. You can export or ZIP this branch at any time for a clean distribution.
+There's a dedicated [`RELEASES`](https://github.com/simpaul13/OpenCode-Go-Usage-Monitor/tree/RELEASES) branch that contains **only** the bare minimum the browser needs — no README, no LICENSE, no scripts, no CI configs, no git history:
 
+```
+manifest.json
+icons/icon-48.png
+icons/icon-128.png
+content_scripts/calculation.js
+content_scripts/analyzer.js
+content_scripts/ui.js
+content_scripts/main.js
+```
+
+You can download a clean `.zip` directly from GitHub:
 ```
 https://github.com/simpaul13/OpenCode-Go-Usage-Monitor/archive/refs/heads/RELEASES.zip
 ```
+
+Or clone just the RELEASES branch:
+```bash
+git clone --branch RELEASES --single-branch https://github.com/simpaul13/OpenCode-Go-Usage-Monitor.git
+```
+
+> 💡 This is the same set of files the GitHub Actions workflow (`release.yml`) packages into the release `.zip`.
 
 ---
 
@@ -142,6 +160,17 @@ OpenCode Go Usage Monitor/
     ├── analyzer.js                # DOM scraper → usage % + reset days
     ├── ui.js                      # Injects UI elements (badges, tooltips, summary card)
     └── main.js                    # Orchestrator entry point + MutationObserver
+```
+
+The **RELEASES branch** is a subset containing only:
+```
+manifest.json
+icons/icon-48.png
+icons/icon-128.png
+content_scripts/calculation.js
+content_scripts/analyzer.js
+content_scripts/ui.js
+content_scripts/main.js
 ```
 
 ---
