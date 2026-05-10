@@ -53,11 +53,25 @@ The injected summary card appears below the native usage section and includes:
 
 ### Brave / Chrome / Edge (Chromium)
 
-1. Open `bra://extensions/` (or `chrome://extensions/` / `edge://extensions/`)
-2. Toggle **Developer mode** on (top-right)
-3. Click **Load unpacked**
-4. Select the project folder: `OpenCode Go Usage Monitor`
-5. The extension activates automatically when you visit `https://opencode.ai/workspace/*`
+#### Option 1 — From source (development)
+1. Clone the repo or download the ZIP from GitHub:
+   ```bash
+   git clone https://github.com/simpaul13/OpenCode-Go-Usage-Monitor.git
+   ```
+2. Open `bra://extensions/` (or `chrome://extensions/` / `edge://extensions/`)
+3. Toggle **Developer mode** on (top-right)
+4. Click **Load unpacked**
+5. Select the project folder
+6. The extension activates automatically when you visit `https://opencode.ai/workspace/*`
+
+#### Option 2 — From GitHub Releases (recommended for users)
+1. Go to the **[Releases page](https://github.com/simpaul13/OpenCode-Go-Usage-Monitor/releases)**
+2. Download the latest `opencode-go-usage-monitor-v*.zip`
+3. Unzip it to a folder anywhere on your computer
+4. Open `bra://extensions/` → toggle **Developer mode** → **Load unpacked** → select the unzipped folder
+5. Done!
+
+> 💡 You can also pin the extension to your toolbar in `bra://extensions/` → click **Details** → toggle **Pin to toolbar**.
 
 ### Firefox
 
@@ -65,21 +79,69 @@ Manifest V3 is not supported in Firefox yet — you would need to convert to Man
 
 ---
 
+## Using this on GitHub
+
+This repo is set up with everything you need to distribute the extension entirely through GitHub.
+
+### 1. Create a Release (automated)
+
+The included GitHub Actions workflow (`.github/workflows/release.yml`) automatically builds a clean `.zip` and publishes a **GitHub Release** whenever you push a version tag:
+
+```bash
+# From your local repo:
+git tag v3.9
+git push origin v3.9
+```
+
+That's it — the Action will:
+- Build `opencode-go-usage-monitor-v3.9.zip` (only the essential files)
+- Create a Release on GitHub
+- Upload the `.zip` as a downloadable asset
+
+Users can then grab the `.zip` from the [Releases page](https://github.com/simpaul13/OpenCode-Go-Usage-Monitor/releases).
+
+### 2. Package locally (optional)
+
+Run one of these scripts to produce the same `.zip` on your machine:
+
+| OS | Command |
+|----|---------|
+| Windows (PowerShell) | `.\scripts\package.ps1` |
+| macOS / Linux | `./scripts/package.sh` |
+
+Output: `releases/opencode-go-usage-monitor-v{version}.zip`
+
+### 3. The RELEASES branch
+
+There's a dedicated [`RELEASES`](https://github.com/simpaul13/OpenCode-Go-Usage-Monitor/tree/RELEASES) branch that contains **only** the files users need — no scripts, no CI configs, no git history. You can export or ZIP this branch at any time for a clean distribution.
+
+```
+https://github.com/simpaul13/OpenCode-Go-Usage-Monitor/archive/refs/heads/RELEASES.zip
+```
+
+---
+
 ## File structure
 
 ```
 OpenCode Go Usage Monitor/
-├── LICENSE                       # MIT license
-├── manifest.json                 # Extension config (Manifest V3, version 3.9)
-├── README.md                     # This file
+├── .github/workflows/
+│   └── release.yml               # CI: auto-builds .zip on git tag push
+├── .gitignore                     # Ignores releases/ and dist/
+├── LICENSE                        # MIT license
+├── manifest.json                  # Extension config (Manifest V3, version 3.9)
+├── README.md                      # This file
 ├── icons/
 │   ├── icon-48.png
 │   └── icon-128.png
+├── scripts/
+│   ├── package.ps1               # Windows PowerShell packaging script
+│   └── package.sh                # macOS/Linux bash packaging script
 └── content_scripts/
-    ├── calculation.js            # Burn-rate math, projections, status logic
-    ├── analyzer.js               # DOM scraper → usage % + reset days
-    ├── ui.js                     # Injects UI elements (badges, tooltips, summary card)
-    └── main.js                   # Orchestrator entry point + MutationObserver
+    ├── calculation.js             # Burn-rate math, projections, status logic
+    ├── analyzer.js                # DOM scraper → usage % + reset days
+    ├── ui.js                      # Injects UI elements (badges, tooltips, summary card)
+    └── main.js                    # Orchestrator entry point + MutationObserver
 ```
 
 ---
