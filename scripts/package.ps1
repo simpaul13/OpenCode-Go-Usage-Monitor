@@ -41,11 +41,10 @@ if (-not $OutputDir) {
 $ZipName = "opencode-go-usage-monitor-v${Version}.zip"
 $ZipPath = Join-Path $OutputDir $ZipName
 
-# Files to include
+# Files to include (only what the browser needs to load the extension)
 $Include = @(
     "manifest.json"
     "LICENSE"
-    "README.md"
     "icons/icon-48.png"
     "icons/icon-128.png"
     "content_scripts/calculation.js"

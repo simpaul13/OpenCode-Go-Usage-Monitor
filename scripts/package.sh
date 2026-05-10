@@ -50,7 +50,6 @@ cd "$ROOT"
 zip -r "$ZIP_PATH" \
   manifest.json \
   LICENSE \
-  README.md \
   icons/icon-48.png \
   icons/icon-128.png \
   content_scripts/calculation.js \
