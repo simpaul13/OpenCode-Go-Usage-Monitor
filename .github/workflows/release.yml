@@ -23,7 +23,6 @@ jobs:
           ZIP_NAME="opencode-go-usage-monitor-v${VERSION}.zip"
           zip -r "dist/${ZIP_NAME}" \
             manifest.json \
-            LICENSE \
             icons/icon-48.png \
             icons/icon-128.png \
             content_scripts/calculation.js \

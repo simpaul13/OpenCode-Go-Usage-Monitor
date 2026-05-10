@@ -49,7 +49,6 @@ echo "Packaging ${ZIP_NAME} ..."
 cd "$ROOT"
 zip -r "$ZIP_PATH" \
   manifest.json \
-  LICENSE \
   icons/icon-48.png \
   icons/icon-128.png \
   content_scripts/calculation.js \

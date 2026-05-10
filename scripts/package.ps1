@@ -44,7 +44,6 @@ $ZipPath = Join-Path $OutputDir $ZipName
 # Files to include (only what the browser needs to load the extension)
 $Include = @(
     "manifest.json"
-    "LICENSE"
     "icons/icon-48.png"
     "icons/icon-128.png"
     "content_scripts/calculation.js"
