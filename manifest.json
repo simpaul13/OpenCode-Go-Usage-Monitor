@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "OpenCode Go Usage Monitor",
+  "version": "3.9",
+  "description": "Burn-rate aware usage monitor — adds Daily Pace + monthly, weekly, rolling safe pacing",
+  "content_scripts": [
+    {
+      "matches": ["https://opencode.ai/workspace/*"],
+      "js": [
+        "content_scripts/calculation.js",
+        "content_scripts/analyzer.js",
+        "content_scripts/ui.js",
+        "content_scripts/main.js"
+      ]
+    }
+  ],
+  "icons": {
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
